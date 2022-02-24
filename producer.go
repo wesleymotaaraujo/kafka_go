@@ -27,7 +27,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/wesleymotaaraujo/kafka_go/ccloud"
@@ -116,9 +118,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Create topic if needed
-	CreateTopic(p, *topic)
-
 	// Go-routine to handle message delivery reports and
 	// possibly other event types (errors, stats, etc)
 	go func() {
@@ -135,11 +134,18 @@ func main() {
 		}
 	}()
 
-	// mesage producer
+	// send a message for new organizations
 	for n := 0; n < 10; n++ {
-		recordKey := "alice"
-		data := &RecordValue{
-			Count: n}
+
+		data := &Organization{
+			ID:    uint(rand.Int()),
+			Name:  "OrgTest" + strconv.Itoa(n),
+			Mode:  "Test",
+			Type:  "organization",
+			Level: 1,
+		}
+		recordKey := "HackFest"
+
 		recordValue, _ := json.Marshal(&data)
 		fmt.Printf("Preparing to produce record: %s\t%s\n", recordKey, recordValue)
 		p.Produce(&kafka.Message{
